@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>WEB.DOCTOR</title>
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v5.15.3/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="assets/css/style.css" rel="stylesheet" />
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-light nav-area fixed-top" id="mainNav">
+            <div class="container px-4 px-lg-5">
+                <a class="navbar-brand" href="#page-top">WEB.DOCTOR</a>
+                <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                    Menu
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#tool">Tool</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Masthead-->
+        <header class="masthead">
+            <div class="container px-4 px-lg-5 d-flex h-100 align-items-center justify-content-center">
+                <div class="d-flex justify-content-center">
+                    <div class="text-center">
+                      <h1 class="mx-auto my-0 text-uppercase">WEB.DOCTOR</h1>
+                      <h2 class="text-white-50 mx-auto mt-2 mb-5">Your at-home diagnosis tool.</h2>
+                      <a class="btn btn-primary" href="#about">About us</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- About-->
+        <section class="about-section text-center bg-black" id="about">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-lg-8">
+                      <h2 class="text-white mb-4">Diagnosis tool</h2>
+                      <p class="text-white-50">
+                          WEB.DOCTOR is a brand new solution for getting an initial diagnosis from the confort of your own home.
+                          No more wondering about what the symptoms might mean until getting a doctor appointment. 
+                          Now you can input your symptoms in our tool and just validate the result with your doctor.
+                      </p>
+                      <a class="btn btn-primary" href="#tool">Start now</a>
+                    </div>
+                </div>
+                <img class="img-fluid" src="/img/heartbeat-transparent.png" alt="..." />
+            </div>
+        </section>
+
+        <section class="about-section text-center bg-black" id="tool">
+            <!-- we generate new option on this div with  id="base"-->
+            <div class="col-md-8 py-5 px-3 mx-auto" , id="base">
+            </div>
+
+            <button id="go" type="button" class="btn btn-dark">Submit</button>
+
+            <div id="diagnosticModal" class="modal">
+
+              <div class="modal-content">
+                <span class="close" id="diagnosticModalSpan" style="text-align: right;">&times;</span>
+                <p id="diagnosisModalContent"></p>
+              </div>
+
+            </div>
+
+            <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+            <script type="module" src="assets/js/starter.js"></script>
+
+            <script>
+
+              $(function(){
+
+                var scroll = $(document).scrollTop();
+                var navHeight = $('.nav-area').outerHeight();
+
+                $(window).scroll(function(){
+                  var scrolled = $(document).scrollTop();
+
+                  if(scrolled > navHeight) {
+                    $('.nav-area').addClass('animate');
+                  } else {
+                    $('.nav-area').removeClass('animate');
+                  }
+
+                  if(scrolled > scroll){
+                    $('.nav-area').removeClass('sticky');
+                  } else {
+                    $('.nav-area').addClass('sticky');
+                  }
+
+                  scroll = $(document).scrollTop();
+                })
+              })
+
+              fetch('http://localhost:5000/', {
+                method: 'GET',
+                headers: {
+                  "Accept": "application/json"
+                }
+              })
+                .then(data => { return data.json() })
+                .then(res => { generateSymptoms(res['symptoms']) })
+                .catch(error => { console.log(error) })
+
+              function generateSymptoms(symptoms) {
+                var i;
+                var j;
+                var size = symptoms.length + 1
+                var numerPerRow = 4
+                var numerOfRows = Math.ceil(size / numerPerRow)
+                for (i = 1; i <= numerOfRows; i++) {
+                  var rowId = "row" + i
+                  generateCheckGroup(rowId)
+                  for (j = (i - 1) * numerPerRow; j < (i * numerPerRow) && j < symptoms.length; j++) {
+                    generateCheckBox(rowId, symptoms[j])
+                  }
+                }
+              }
+
+              function generateCheckGroup(newGroupId) {
+                $("#base").append("<div class=\"btn-group\" id=\"" + newGroupId + "\">");
+              }
+
+              function generateCheckBox(groupId, content) {
+                var formattedId = "#" + groupId
+                $(formattedId).append("<input type=\"checkbox\" class=\"btn-check\" id=\"" + content + "\" autocomplete=\"off\">");
+                $(formattedId).append("<label class=\"btn btn-outline-primary\" for=\"" + content + "\">" + content.replaceAll("_", " ") + "</label>");
+              }
+
+              function getSelected() {
+                var buttons = $('.btn-check:checked')
+                var selected_syntoms = []
+                console.log(buttons)
+
+                var i;
+                for (i = 0; i < buttons.length; i++) {
+                  var element = buttons[i].id
+                  selected_syntoms.push(element)
+                }
+                return selected_syntoms
+              }
+
+              function displayDiagnostic(data) {
+                console.log("Diagnotic: "+data)
+                $("#diagnosisModalContent").html(data)
+                $("#diagnosticModal").css("display", "block")
+              }
+
+              $("#go").click(function () {
+                var payLoad = { symptoms: getSelected() };
+
+                fetch('http://localhost:5000/', {
+                  method: 'POST',
+                  body: JSON.stringify(payLoad),
+                  headers: {
+                    // 'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                  }
+                })
+                  .then(data => { return data.json() })
+                  .then(res => { displayDiagnostic(res["diagnostic"])})
+                  .catch(error => { console.log(error)
+                    displayDiagnostic("An error has occured. Please select at least 3 symptoms.")
+                })
+              });
+
+              function closeModal(){
+                $("#diagnosticModal").css("display", "none");
+                var checks = $('.btn-check:checked')
+                var buttons = $('.btn.btn-outline-primary')
+                var i;
+                for (i = 0; i < buttons.length; i++) {
+                  var id = buttons[i].getAttribute('for')
+                  var j;
+                  for (j=0; j < checks.length; j++){
+                    if(checks[j].id == id){
+                      checks[j].click()
+                    }
+                  }
+
+                }
+                
+              }
+
+              $("#diagnosticModalSpan").click(function () {
+                closeModal()
+              });
+
+              $(window).click(function (event) {
+                var target = $( event.target )
+                if(target.is("#diagnosticModal")){
+                  closeModal()
+                }
+                
+              });
+
+            </script>
+            
+          </div>
+        </section>
+
+        <!-- Contact-->
+        <section class="contact-section bg-black" id="contact">
+          <div class="container px-4 px-lg-5">
+              <div class="row gx-4 gx-lg-5">
+                  <div class="col-md-4 mb-3 mb-md-0">
+                      <div class="card py-4 h-100">
+                          <div class="card-body text-center">
+                              <i class="fas fa-map-marked-alt text-primary mb-2"></i>
+                              <h4 class="text-uppercase m-0">Address</h4>
+                              <hr class="my-4 mx-auto" />
+                              <div class="small text-black-50">Magheru Boulevard, Bucharest</div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4 mb-3 mb-md-0">
+                      <div class="card py-4 h-100">
+                          <div class="card-body text-center">
+                              <i class="fas fa-envelope text-primary mb-2"></i>
+                              <h4 class="text-uppercase m-0">Email</h4>
+                              <hr class="my-4 mx-auto" />
+                              <div class="small text-black-50"><a href="#!">service@webdoctor.com</a></div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4 mb-3 mb-md-0">
+                      <div class="card py-4 h-100">
+                          <div class="card-body text-center">
+                              <i class="fas fa-mobile-alt text-primary mb-2"></i>
+                              <h4 class="text-uppercase m-0">Phone</h4>
+                              <hr class="my-4 mx-auto" />
+                              <div class="small text-black-50">+40 123 456 789</div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </section>
+
+    <script src="node_modules/jquery/dist/jquery.slim.min.js"></script>
+    <script type="module" src="assets/js/starter.js"></script>
+  </body>
+</html>
